@@ -350,3 +350,153 @@ class DatabaseManager:
         except Exception as e:
             self.logger.error(f"Error updating vulnerability status: {e}")
             return False
+
+    # Dashboard statistics methods
+    def get_total_scans(self) -> int:
+        """Get total number of scans"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM scans')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting total scans: {e}")
+            return 0
+
+    def get_completed_scans(self) -> int:
+        """Get number of completed scans"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM scans WHERE status = "completed"')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting completed scans: {e}")
+            return 0
+
+    def get_failed_scans(self) -> int:
+        """Get number of failed scans"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM scans WHERE status = "failed"')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting failed scans: {e}")
+            return 0
+
+    def get_total_vulnerabilities(self) -> int:
+        """Get total number of vulnerabilities"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM vulnerabilities')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting total vulnerabilities: {e}")
+            return 0
+
+    def get_high_risk_vulnerabilities(self) -> int:
+        """Get number of high risk vulnerabilities"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM vulnerabilities WHERE severity IN ("critical", "high")')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting high risk vulnerabilities: {e}")
+            return 0
+
+    def get_medium_risk_vulnerabilities(self) -> int:
+        """Get number of medium risk vulnerabilities"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM vulnerabilities WHERE severity = "medium"')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting medium risk vulnerabilities: {e}")
+            return 0
+
+    def get_low_risk_vulnerabilities(self) -> int:
+        """Get number of low risk vulnerabilities"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM vulnerabilities WHERE severity = "low"')
+                return cursor.fetchone()[0]
+        except Exception as e:
+            self.logger.error(f"Error getting low risk vulnerabilities: {e}")
+            return 0
+
+    def get_recent_activity(self, limit: int = 5) -> List[Dict]:
+        """Get recent scan activity"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT id, target, scan_name, status, created_at
+                    FROM scans
+                    ORDER BY created_at DESC
+                    LIMIT ?
+                ''', (limit,))
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error(f"Error getting recent activity: {e}")
+            return []
+
+    def get_scan_progress(self, scan_id: int) -> Optional[Dict]:
+        """Get scan progress information"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT id, target, scan_name, status, created_at, updated_at
+                    FROM scans
+                    WHERE id = ?
+                ''', (scan_id,))
+                scan = cursor.fetchone()
+                
+                if not scan:
+                    return None
+                
+                scan_dict = dict(scan)
+                
+                # Calculate progress based on status
+                if scan_dict['status'] == 'completed':
+                    progress = 100
+                elif scan_dict['status'] == 'failed':
+                    progress = 0
+                else:
+                    progress = 50  # Default for running scans
+                
+                return {
+                    'scan_id': scan_dict['id'],
+                    'progress': progress,
+                    'status': scan_dict['status'],
+                    'target': scan_dict['target'],
+                    'scan_name': scan_dict['scan_name']
+                }
+        except Exception as e:
+            self.logger.error(f"Error getting scan progress: {e}")
+            return None
+
+    def get_recent_vulnerabilities(self, limit: int = 5) -> List[Dict]:
+        """Get recent vulnerabilities"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT v.id, v.title, v.severity, v.vuln_type, s.target, v.created_at
+                    FROM vulnerabilities v
+                    JOIN scans s ON v.scan_id = s.id
+                    ORDER BY v.created_at DESC
+                    LIMIT ?
+                ''', (limit,))
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error(f"Error getting recent vulnerabilities: {e}")
+            return []

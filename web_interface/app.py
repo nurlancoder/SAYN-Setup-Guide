@@ -236,6 +236,28 @@ def create_app():
             logger.error(f"Error deleting scan: {e}")
             return jsonify({'error': str(e)}), 500
 
+    @app.route('/api/vulnerabilities')
+    def get_vulnerabilities():
+        """Get vulnerabilities with filtering"""
+        try:
+            limit = int(request.args.get('limit', 50))
+            offset = int(request.args.get('offset', 0))
+            severity = request.args.get('severity')
+            scan_id = request.args.get('scan_id')
+            
+            vulnerabilities = db.get_recent_vulnerabilities(limit)
+            
+            # Apply additional filtering if needed
+            if severity:
+                vulnerabilities = [v for v in vulnerabilities if v.get('severity') == severity]
+            if scan_id:
+                vulnerabilities = [v for v in vulnerabilities if v.get('scan_id') == int(scan_id)]
+            
+            return jsonify(vulnerabilities)
+        except Exception as e:
+            logger.error(f"Error getting vulnerabilities: {e}")
+            return jsonify({'error': str(e)}), 500
+
     @app.socketio.on('connect')
     def handle_connect():
         """Handle WebSocket connection"""
