@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History - SAYN Security Scanner{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Scan History</h1>
+                    <p class="mt-2 text-gray-600">View and manage your security scan history</p>
+                </div>
+                <a href="{{ url_for('scan_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    New Scan
+                </a>
+            </div>
+        </div>
+
+        <!-- Scan History Table -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Recent Scans</h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scan Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% if scans %}
+                            {% for scan in scans %}
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ scan.scan_name or 'Unnamed Scan' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ scan.target }}">{{ scan.target }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ scan.scan_type or 'Unknown' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% set status = scan.status or 'Unknown' %}
+                                    {% if status == 'Completed' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="3"/>
+                                            </svg>
+                                            {{ status }}
+                                        </span>
+                                    {% elif status == 'Running' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <svg class="w-2 h-2 mr-1 animate-spin" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="3"/>
+                                            </svg>
+                                            {{ status }}
+                                        </span>
+                                    {% elif status == 'Failed' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="3"/>
+                                            </svg>
+                                            {{ status }}
+                                        </span>
+                                    {% elif status == 'Pending' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="3"/>
+                                            </svg>
+                                            {{ status }}
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ status }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        {% if scan.created_at %}
+                                            <time datetime="{{ scan.created_at.isoformat() }}" title="{{ scan.created_at.strftime('%Y-%m-%d %H:%M:%S') }}">
+                                                {{ scan.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                            </time>
+                                        {% else %}
+                                            <span class="text-gray-400">Unknown</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <button 
+                                            onclick="viewScanDetails({{ scan.id }})" 
+                                            class="text-indigo-600 hover:text-indigo-900 focus:outline-none focus:underline transition-colors duration-150"
+                                            title="View scan details">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            onclick="downloadScanReport({{ scan.id }})" 
+                                            class="text-green-600 hover:text-green-900 focus:outline-none focus:underline transition-colors duration-150"
+                                            title="Download report">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No scans found</h3>
+                                        <p class="text-gray-500 mb-4">Start your first scan to see results here.</p>
+                                        <a href="{{ url_for('scan_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                                            Start First Scan
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Güvenli JavaScript fonksiyonları
+function viewScanDetails(scanId) {
+    if (!scanId || isNaN(scanId)) {
+        console.error('Invalid scan ID:', scanId);
+        return;
+    }
+    
+    try {
+        // AJAX ile scan detaylarını getir
+        fetch(`/api/scan/${scanId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Modal veya yeni sayfa ile detayları göster
+                showScanDetailsModal(data);
+            })
+            .catch(error => {
+                console.error('Error fetching scan details:', error);
+                showNotification('Error loading scan details', 'error');
+            });
+    } catch (error) {
+        console.error('Error in viewScanDetails:', error);
+        showNotification('Error viewing scan details', 'error');
+    }
+}
+
+function downloadScanReport(scanId) {
+    if (!scanId || isNaN(scanId)) {
+        console.error('Invalid scan ID:', scanId);
+        return;
+    }
+    
+    try {
+        // Güvenli URL oluştur
+        const reportUrl = `/api/scan/${scanId}/report?format=html`;
+        
+        // Yeni sekmede aç
+        const newWindow = window.open(reportUrl, '_blank');
+        
+        if (!newWindow) {
+            showNotification('Please allow popups to download reports', 'warning');
+        }
+    } catch (error) {
+        console.error('Error downloading report:', error);
+        showNotification('Error downloading report', 'error');
+    }
+}
+
+function showScanDetailsModal(scanData) {
+    // Modal gösterme fonksiyonu (implement edilebilir)
+    console.log('Scan details:', scanData);
+    showNotification('Scan details loaded successfully', 'success');
+}
+
+function showNotification(message, type = 'info') {
+    // Basit notification sistemi
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-md text-white text-sm font-medium z-50 transition-all duration-300 ${
+        type === 'error' ? 'bg-red-500' :
+        type === 'success' ? 'bg-green-500' :
+        type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // 3 saniye sonra kaldır
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Sayfa yüklendiğinde çalışacak kodlar
+document.addEventListener('DOMContentLoaded', function() {
+    // Responsive tablo için ek işlemler
+    const table = document.querySelector('table');
+    if (table) {
+        // Tablo scroll göstergesi
+        const tableContainer = table.closest('.overflow-x-auto');
+        if (tableContainer) {
+            tableContainer.addEventListener('scroll', function() {
+                // Scroll göstergesi eklenebilir
+            });
+        }
+    }
+    
+    // Klavye navigasyonu
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            // Modal kapatma
+        }
+    });
+});
+</script>
+{% endblock %}

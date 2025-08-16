@@ -40,6 +40,17 @@ def create_app():
         """Scan configuration page"""
         return render_template('scan.html')
 
+    @app.route('/history')
+    def history_page():
+        """Scan history page"""
+        try:
+            recent_scans = db.get_scan_history(limit=100)
+            return render_template('history.html', scans=recent_scans)
+        except Exception as e:
+            logger.error(f"Error loading history: {e}")
+            flash('Error loading scan history', 'error')
+            return render_template('history.html', scans=[])
+
     @app.route('/api/scan', methods=['POST'])
     def start_scan():
         """Start a new security scan"""

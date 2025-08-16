@@ -226,6 +226,10 @@ Examples:
     parser.add_argument('--config', help='Path to configuration file')
     parser.add_argument('--web-interface', action='store_true',
                        help='Start web interface')
+    parser.add_argument('--host', default='0.0.0.0',
+                       help='Host for web interface (default: 0.0.0.0)')
+    parser.add_argument('--port', type=int, default=5000,
+                       help='Port for web interface (default: 5000)')
     parser.add_argument('--health-check', action='store_true',
                        help='Perform health check')
     parser.add_argument('-v', '--verbose', action='store_true',
@@ -254,9 +258,9 @@ Examples:
             socketio = SocketIO(app)
             
             print("Starting SAYN Web Interface...")
-            print("Access at: http://localhost:5000")
+            print(f"Access at: http://{args.host}:{args.port}")
             
-            socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+            socketio.run(app, host=args.host, port=args.port, debug=False)
             return
         
         if not args.url:
