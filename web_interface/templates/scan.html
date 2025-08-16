@@ -12,7 +12,7 @@
                     <p class="mt-1 text-sm text-gray-500">Configure and start a comprehensive security scan</p>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{{ url_for('dashboard') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <a href="{{ url_for('index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
@@ -430,11 +430,11 @@ function startScan(scanData) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        if (data.scan_id) {
             showNotification('Scan started successfully!', 'success');
             monitorScanProgress(data.scan_id);
         } else {
-            showNotification('Error starting scan: ' + data.error, 'error');
+            showNotification('Error starting scan: ' + (data.error || 'Unknown error'), 'error');
             resetScanForm();
         }
     })
@@ -585,6 +585,29 @@ function updateTimer() {
         document.getElementById('scan-duration').textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
+}
+
+function showNotification(message, type = 'info') {
+    // Basit notification sistemi
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-md text-white text-sm font-medium z-50 transition-all duration-300 ${
+        type === 'error' ? 'bg-red-500' :
+        type === 'success' ? 'bg-green-500' :
+        type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // 3 saniye sonra kaldır
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
 }
 </script>
 {% endblock %}

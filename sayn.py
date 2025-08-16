@@ -252,15 +252,13 @@ Examples:
         
         if args.web_interface:
             from web_interface.app import create_app
-            from flask_socketio import SocketIO
             
             app = create_app()
-            socketio = SocketIO(app)
             
             print("Starting SAYN Web Interface...")
             print(f"Access at: http://{args.host}:{args.port}")
             
-            socketio.run(app, host=args.host, port=args.port, debug=False)
+            app.socketio.run(app, host=args.host, port=args.port, debug=False)
             return
         
         if not args.url:

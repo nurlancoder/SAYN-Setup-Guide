@@ -16,12 +16,15 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'sayn-secret-key-change-in-production'
     
-    socketio = SocketIO(app, cors_allowed_origins="*")
+    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
     
     config = Config()
     db = DatabaseManager()
     logger = Logger()
     report_gen = ReportGenerator()
+    
+    # Make socketio available globally
+    app.socketio = socketio
     
     @app.route('/')
     def index():
@@ -50,6 +53,42 @@ def create_app():
             logger.error(f"Error loading history: {e}")
             flash('Error loading scan history', 'error')
             return render_template('history.html', scans=[])
+
+    @app.route('/dashboard')
+    def dashboard():
+        """Dashboard page - redirect to index"""
+        return redirect(url_for('index'))
+
+    @app.route('/api/dashboard/stats')
+    def dashboard_stats():
+        """Get dashboard statistics"""
+        try:
+            stats = {
+                'total_scans': db.get_total_scans(),
+                'completed_scans': db.get_completed_scans(),
+                'failed_scans': db.get_failed_scans(),
+                'total_vulnerabilities': db.get_total_vulnerabilities(),
+                'high_risk_vulns': db.get_high_risk_vulnerabilities(),
+                'medium_risk_vulns': db.get_medium_risk_vulnerabilities(),
+                'low_risk_vulns': db.get_low_risk_vulnerabilities(),
+                'recent_activity': db.get_recent_activity(limit=5)
+            }
+            return jsonify(stats)
+        except Exception as e:
+            logger.error(f"Error getting dashboard stats: {e}")
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/scan/<int:scan_id>/progress')
+    def scan_progress(scan_id):
+        """Get scan progress"""
+        try:
+            progress = db.get_scan_progress(scan_id)
+            if progress:
+                return jsonify(progress)
+            return jsonify({'error': 'Scan not found'}), 404
+        except Exception as e:
+            logger.error(f"Error getting scan progress: {e}")
+            return jsonify({'error': str(e)}), 500
 
     @app.route('/api/scan', methods=['POST'])
     def start_scan():
@@ -98,7 +137,7 @@ def create_app():
                         results['scan_id'] = scan_id
                         db.save_scan_results(results)
                         
-                        socketio.emit('scan_completed', {
+                        app.socketio.emit('scan_completed', {
                             'scan_id': scan_id,
                             'results': results,
                             'status': 'completed'
@@ -106,7 +145,7 @@ def create_app():
                         
                     except Exception as e:
                         logger.error(f"Scan error: {e}")
-                        socketio.emit('scan_error', {
+                        app.socketio.emit('scan_error', {
                             'scan_id': scan_id,
                             'error': str(e),
                             'status': 'failed'
@@ -116,7 +155,7 @@ def create_app():
                         
                 except Exception as e:
                     logger.error(f"Background scan error: {e}")
-                    socketio.emit('scan_error', {
+                    app.socketio.emit('scan_error', {
                         'scan_id': scan_id,
                         'error': str(e),
                         'status': 'failed'
@@ -197,12 +236,12 @@ def create_app():
             logger.error(f"Error deleting scan: {e}")
             return jsonify({'error': str(e)}), 500
 
-    @socketio.on('connect')
+    @app.socketio.on('connect')
     def handle_connect():
         """Handle WebSocket connection"""
         emit('connected', {'data': 'Connected to SAYN Scanner'})
 
-    @socketio.on('disconnect')
+    @app.socketio.on('disconnect')
     def handle_disconnect():
         """Handle WebSocket disconnection"""
         pass
