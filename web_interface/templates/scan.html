@@ -1,0 +1,590 @@
+{% extends "base.html" %}
+
+{% block title %}SAYN Security Scanner - New Scan{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">New Security Scan</h1>
+                    <p class="mt-1 text-sm text-gray-500">Configure and start a comprehensive security scan</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ url_for('dashboard') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Scan Configuration</h3>
+                        
+                        <form id="scan-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="target" class="block text-sm font-medium text-gray-700">Target URL *</label>
+                                    <input type="url" id="target" name="target" required
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                           placeholder="https://example.com">
+                                    <p class="mt-1 text-sm text-gray-500">Enter the target URL to scan</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="scan_name" class="block text-sm font-medium text-gray-700">Scan Name</label>
+                                    <input type="text" id="scan_name" name="scan_name"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                           placeholder="My Security Scan">
+                                    <p class="mt-1 text-sm text-gray-500">Optional name for this scan</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Scan Type *</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 shadow-sm focus:outline-none">
+                                        <input type="radio" name="scan_type" value="web" class="sr-only" checked>
+                                        <span class="flex flex-1">
+                                            <span class="flex flex-col">
+                                                <span class="block text-sm font-medium text-gray-900">Web Security</span>
+                                                <span class="mt-1 flex items-center text-sm text-gray-500">
+                                                    XSS, SQLi, CSRF, Headers, File Inclusion
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></span>
+                                    </label>
+
+                                    <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 shadow-sm focus:outline-none">
+                                        <input type="radio" name="scan_type" value="api" class="sr-only">
+                                        <span class="flex flex-1">
+                                            <span class="flex flex-col">
+                                                <span class="block text-sm font-medium text-gray-900">API Security</span>
+                                                <span class="mt-1 flex items-center text-sm text-gray-500">
+                                                    REST API, GraphQL, Authentication, Rate Limiting
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></span>
+                                    </label>
+
+                                    <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 shadow-sm focus:outline-none">
+                                        <input type="radio" name="scan_type" value="network" class="sr-only">
+                                        <span class="flex flex-1">
+                                            <span class="flex flex-col">
+                                                <span class="block text-sm font-medium text-gray-900">Network Security</span>
+                                                <span class="mt-1 flex items-center text-sm text-gray-500">
+                                                    Port Scanning, SSL/TLS, Service Detection
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></span>
+                                    </label>
+
+                                    <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 shadow-sm focus:outline-none">
+                                        <input type="radio" name="scan_type" value="full" class="sr-only">
+                                        <span class="flex flex-1">
+                                            <span class="flex flex-col">
+                                                <span class="block text-sm font-medium text-gray-900">Full Scan</span>
+                                                <span class="mt-1 flex items-center text-sm text-gray-500">
+                                                    All security modules (comprehensive)
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-200 pt-6">
+                                <h4 class="text-md font-medium text-gray-900 mb-4">Advanced Options</h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label for="scan_depth" class="block text-sm font-medium text-gray-700">Scan Depth</label>
+                                        <select id="scan_depth" name="scan_depth"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                            <option value="quick">Quick (Basic checks)</option>
+                                            <option value="normal" selected>Normal (Standard checks)</option>
+                                            <option value="deep">Deep (Comprehensive checks)</option>
+                                            <option value="aggressive">Aggressive (Intensive checks)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="threads" class="block text-sm font-medium text-gray-700">Threads</label>
+                                        <input type="number" id="threads" name="threads" min="1" max="50" value="10"
+                                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <p class="mt-1 text-sm text-gray-500">Number of concurrent threads (1-50)</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="timeout" class="block text-sm font-medium text-gray-700">Timeout (seconds)</label>
+                                        <input type="number" id="timeout" name="timeout" min="5" max="300" value="30"
+                                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <p class="mt-1 text-sm text-gray-500">Request timeout in seconds</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-200 pt-6">
+                                <h4 class="text-md font-medium text-gray-900 mb-4">Module Selection</h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="module-selection">
+                                    <div class="space-y-3" id="web-modules">
+                                        <h5 class="text-sm font-medium text-gray-700">Web Security</h5>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="xss" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Cross-Site Scripting (XSS)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="sqli" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">SQL Injection</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="csrf" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">CSRF Protection</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="headers" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Security Headers</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="file_inclusion" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">File Inclusion</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="space-y-3 hidden" id="api-modules">
+                                        <h5 class="text-sm font-medium text-gray-700">API Security</h5>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="rest_api" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">REST API Security</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="graphql" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">GraphQL Security</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="auth_bypass" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Authentication Bypass</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="rate_limiting" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Rate Limiting</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="space-y-3 hidden" id="network-modules">
+                                        <h5 class="text-sm font-medium text-gray-700">Network Security</h5>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="port_scan" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Port Scanning</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="ssl_tls" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">SSL/TLS Analysis</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="modules" value="service_detection" checked
+                                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Service Detection</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-200 pt-6">
+                                <div class="flex justify-end space-x-3">
+                                    <button type="button" onclick="window.history.back()"
+                                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" id="start-scan-btn"
+                                            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        Start Scan
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg sticky top-8">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Scan Progress</h3>
+                        
+                        <div id="scan-progress-content" class="hidden">
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span id="progress-percentage">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%" id="progress-bar"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600">Status: <span id="scan-status" class="font-medium text-gray-900">Initializing...</span></p>
+                                <p class="text-sm text-gray-600">Duration: <span id="scan-duration" class="font-medium text-gray-900">00:00</span></p>
+                            </div>
+
+                            <div class="space-y-2" id="module-status">
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">Quick Results</h4>
+                                <div class="space-y-2 text-sm" id="quick-results">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Vulnerabilities Found:</span>
+                                        <span id="vuln-count" class="font-medium">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">High Risk:</span>
+                                        <span id="high-risk-count" class="font-medium text-red-600">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Medium Risk:</span>
+                                        <span id="medium-risk-count" class="font-medium text-orange-600">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Low Risk:</span>
+                                        <span id="low-risk-count" class="font-medium text-yellow-600">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="scan-initial-state" class="text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No scan running</h3>
+                            <p class="mt-1 text-sm text-gray-500">Configure your scan and click "Start Scan" to begin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeScanForm();
+    initializeModuleSelection();
+});
+
+function initializeScanForm() {
+    const form = document.getElementById('scan-form');
+    const startButton = document.getElementById('start-scan-btn');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (startButton.disabled) {
+            return; 
+        }
+        
+        const formData = new FormData(form);
+        const scanData = {
+            target: formData.get('target'),
+            scan_name: formData.get('scan_name') || `Scan - ${formData.get('target')}`,
+            scan_type: formData.get('scan_type'),
+            scan_depth: formData.get('scan_depth'),
+            threads: parseInt(formData.get('threads')),
+            timeout: parseInt(formData.get('timeout')),
+            modules: getSelectedModules()
+        };
+        
+        if (!validateScanForm(scanData)) {
+            return;
+        }
+        
+        startScan(scanData);
+    });
+}
+
+function initializeModuleSelection() {
+    const scanTypeRadios = document.querySelectorAll('input[name="scan_type"]');
+    
+    scanTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            updateModuleSelection(this.value);
+        });
+    });
+    
+    updateModuleSelection('web');
+}
+
+function updateModuleSelection(scanType) {
+    document.getElementById('web-modules').classList.add('hidden');
+    document.getElementById('api-modules').classList.add('hidden');
+    document.getElementById('network-modules').classList.add('hidden');
+    
+    switch (scanType) {
+        case 'web':
+            document.getElementById('web-modules').classList.remove('hidden');
+            break;
+        case 'api':
+            document.getElementById('api-modules').classList.remove('hidden');
+            break;
+        case 'network':
+            document.getElementById('network-modules').classList.remove('hidden');
+            break;
+        case 'full':
+            document.getElementById('web-modules').classList.remove('hidden');
+            document.getElementById('api-modules').classList.remove('hidden');
+            document.getElementById('network-modules').classList.remove('hidden');
+            break;
+    }
+}
+
+function getSelectedModules() {
+    const selectedModules = [];
+    const checkboxes = document.querySelectorAll('input[name="modules"]:checked');
+    
+    checkboxes.forEach(checkbox => {
+        selectedModules.push(checkbox.value);
+    });
+    
+    return selectedModules;
+}
+
+function validateScanForm(scanData) {
+    if (!scanData.target) {
+        showNotification('Please enter a target URL', 'error');
+        return false;
+    }
+    
+    if (!scanData.modules.length) {
+        showNotification('Please select at least one module to scan', 'error');
+        return false;
+    }
+    
+    if (scanData.threads < 1 || scanData.threads > 50) {
+        showNotification('Threads must be between 1 and 50', 'error');
+        return false;
+    }
+    
+    if (scanData.timeout < 5 || scanData.timeout > 300) {
+        showNotification('Timeout must be between 5 and 300 seconds', 'error');
+        return false;
+    }
+    
+    return true;
+}
+
+function startScan(scanData) {
+    const startButton = document.getElementById('start-scan-btn');
+    const progressContent = document.getElementById('scan-progress-content');
+    const initialState = document.getElementById('scan-initial-state');
+    
+    startButton.disabled = true;
+    startButton.innerHTML = `
+        <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Starting...
+    `;
+    
+    progressContent.classList.remove('hidden');
+    initialState.classList.add('hidden');
+    
+    updateProgress(0, 'Initializing scan...');
+    startTimer();
+    
+    fetch('/api/scan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scanData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Scan started successfully!', 'success');
+            monitorScanProgress(data.scan_id);
+        } else {
+            showNotification('Error starting scan: ' + data.error, 'error');
+            resetScanForm();
+        }
+    })
+    .catch(error => {
+        console.error('Error starting scan:', error);
+        showNotification('Error starting scan', 'error');
+        resetScanForm();
+    });
+}
+
+function monitorScanProgress(scanId) {
+    const checkProgress = () => {
+        fetch(`/api/scan/${scanId}/progress`)
+            .then(response => response.json())
+            .then(data => {
+                const progress = data.progress || 0;
+                const status = data.status || 'Scanning...';
+                
+                updateProgress(progress, status);
+                updateModuleStatus(data.modules || {});
+                updateQuickResults(data.results || {});
+                
+                if (status === 'completed' || status === 'failed') {
+                    handleScanCompletion(scanId, status, data);
+                } else {
+                    setTimeout(checkProgress, 2000);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking scan progress:', error);
+                showNotification('Error monitoring scan progress', 'error');
+                resetScanForm();
+            });
+    };
+    
+    checkProgress();
+}
+
+function updateProgress(percentage, status) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercentage = document.getElementById('progress-percentage');
+    const scanStatus = document.getElementById('scan-status');
+    
+    progressBar.style.width = percentage + '%';
+    progressPercentage.textContent = percentage + '%';
+    scanStatus.textContent = status;
+}
+
+function updateModuleStatus(modules) {
+    const moduleStatus = document.getElementById('module-status');
+    
+    moduleStatus.innerHTML = Object.entries(modules).map(([module, status]) => `
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">${formatModuleName(module)}</span>
+            <span class="inline-flex items-center">
+                ${getModuleStatusIcon(status)}
+                <span class="ml-1 text-gray-500">${status}</span>
+            </span>
+        </div>
+    `).join('');
+}
+
+function updateQuickResults(results) {
+    document.getElementById('vuln-count').textContent = results.total_vulnerabilities || 0;
+    document.getElementById('high-risk-count').textContent = results.high_risk || 0;
+    document.getElementById('medium-risk-count').textContent = results.medium_risk || 0;
+    document.getElementById('low-risk-count').textContent = results.low_risk || 0;
+}
+
+function handleScanCompletion(scanId, status, data) {
+    stopTimer();
+    
+    if (status === 'completed') {
+        showNotification('Scan completed successfully!', 'success');
+        
+        updateQuickResults(data.results || {});
+        
+        document.getElementById('scan-status').textContent = 'Completed';
+        document.getElementById('scan-status').classList.add('text-green-600');
+        
+        const progressContent = document.getElementById('scan-progress-content');
+        const viewResultsBtn = document.createElement('div');
+        viewResultsBtn.className = 'mt-4 pt-4 border-t border-gray-200';
+        viewResultsBtn.innerHTML = `
+            <a href="/scan/${scanId}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                View Full Results
+            </a>
+        `;
+        progressContent.appendChild(viewResultsBtn);
+        
+    } else {
+        showNotification('Scan failed', 'error');
+        document.getElementById('scan-status').textContent = 'Failed';
+        document.getElementById('scan-status').classList.add('text-red-600');
+    }
+    
+    resetScanForm();
+}
+
+function resetScanForm() {
+    const startButton = document.getElementById('start-scan-btn');
+    startButton.disabled = false;
+    startButton.innerHTML = `
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        Start Scan
+    `;
+}
+
+function formatModuleName(module) {
+    return module.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function getModuleStatusIcon(status) {
+    switch (status.toLowerCase()) {
+        case 'completed':
+            return '<svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+        case 'running':
+            return '<svg class="w-4 h-4 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+        case 'failed':
+            return '<svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
+        default:
+            return '<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>';
+    }
+}
+
+let startTime = null;
+let timerInterval = null;
+
+function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function updateTimer() {
+    if (startTime) {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('scan-duration').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+</script>
+{% endblock %}

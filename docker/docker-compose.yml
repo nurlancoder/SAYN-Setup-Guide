@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  sayn-scanner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: sayn-security-scanner
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../reports:/app/reports
+      - ../config:/app/config
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - sayn-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sayn-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - sayn-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: sayn-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - sayn-scanner
+    restart: unless-stopped
+    networks:
+      - sayn-network
+
+volumes:
+  redis_data:
+
+networks:
+  sayn-network:
+    driver: bridge

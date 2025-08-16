@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAYN Security Scanner - {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <nav class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-3xl mr-3"></i>
+                        <a href="{{ url_for('index') }}" class="text-2xl font-bold">SAYN Security</a>
+                    </div>
+                </div>
+                
+                <button id="mobile-menu-button" class="md:hidden focus:outline-none text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="{{ url_for('index') }}" class="hover:text-blue-200 transition duration-300 flex items-center">
+                        <i class="fas fa-home mr-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('scan_page') }}" class="hover:text-blue-200 transition duration-300 flex items-center">
+                        <i class="fas fa-search mr-2"></i> New Scan
+                    </a>
+                    <a href="#" class="hover:text-blue-200 transition duration-300 flex items-center">
+                        <i class="fas fa-history mr-2"></i> Reports
+                    </a>
+                    <a href="#" class="hover:text-blue-200 transition duration-300 flex items-center">
+                        <i class="fas fa-cog mr-2"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="{{ url_for('index') }}" class="hover:text-blue-200 transition duration-300 flex items-center py-2">
+                        <i class="fas fa-home mr-3"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('scan_page') }}" class="hover:text-blue-200 transition duration-300 flex items-center py-2">
+                        <i class="fas fa-search mr-3"></i> New Scan
+                    </a>
+                    <a href="#" class="hover:text-blue-200 transition duration-300 flex items-center py-2">
+                        <i class="fas fa-history mr-3"></i> Reports
+                    </a>
+                    <a href="#" class="hover:text-blue-200 transition duration-300 flex items-center py-2">
+                        <i class="fas fa-cog mr-3"></i> Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-4 py-6">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-6 p-4 rounded-lg shadow-md border-l-4 {% if category == 'error' %}border-red-500 bg-red-50 text-red-700{% elif category == 'success' %}border-green-500 bg-green-50 text-green-700{% else %}border-blue-500 bg-blue-50 text-blue-700{% endif %}">
+                        <div class="flex items-center">
+                            {% if category == 'error' %}
+                                <i class="fas fa-exclamation-circle mr-3"></i>
+                            {% elif category == 'success' %}
+                                <i class="fas fa-check-circle mr-3"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle mr-3"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">SAYN Security Scanner</h3>
+                    <p class="text-gray-400 mb-4">Advanced security scanning for modern web applications</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fab fa-github text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fab fa-twitter text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fas fa-envelope text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition duration-300">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">API Reference</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Support</a></li>
+                        <li><a href="#" class="hover:text-white transition duration-300">Changelog</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <div class="text-gray-400 space-y-2">
+                        <p><i class="fas fa-user mr-2"></i> Məmmədli Nurlan</p>
+                        <p><i class="fas fa-envelope mr-2"></i> nurlanmammadli2@gmail.com</p>
+                        <p><i class="fab fa-github mr-2"></i> github.com/nurlancoder</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
+                <p>&copy; 2023 SAYN Security. All rights reserved. v2.1.0</p>
+                <p class="mt-2 text-sm">
+                    ⚠️ This tool is intended for security testing purposes only. 
+                    Use only on systems you own or have permission to test.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 300);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
