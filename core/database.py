@@ -182,40 +182,44 @@ class DatabaseManager:
             raise
 
     def get_scan_history(self, limit: int = 50, offset: int = 0, 
-                        status: str = None, scan_type: str = None) -> List[Dict]:
-        """Get scan history with filtering options"""
+                        status: str = None, scan_type: str = None) -> Dict[str, Any]:
+        """Get scan history with optional filtering"""
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 
-                query = '''
-                    SELECT id, target, scan_name, scan_date, modules_used, risk_score, 
-                           status, scan_type, scan_depth, created_at
-                    FROM scans
-                '''
+                query = """
+                    SELECT s.*, COUNT(v.id) as vulnerability_count
+                    FROM scans s
+                    LEFT JOIN vulnerabilities v ON s.id = v.scan_id
+                    WHERE 1=1
+                """
                 params = []
                 
-                conditions = []
                 if status:
-                    conditions.append('status = ?')
+                    query += " AND s.status = ?"
                     params.append(status)
+                
                 if scan_type:
-                    conditions.append('scan_type = ?')
+                    query += " AND s.scan_type = ?"
                     params.append(scan_type)
                 
-                if conditions:
-                    query += ' WHERE ' + ' AND '.join(conditions)
-                
-                query += ' ORDER BY scan_date DESC LIMIT ? OFFSET ?'
+                query += """
+                    GROUP BY s.id
+                    ORDER BY s.created_at DESC
+                    LIMIT ? OFFSET ?
+                """
                 params.extend([limit, offset])
                 
                 cursor.execute(query, params)
-                return [dict(row) for row in cursor.fetchall()]
+                scans = [dict(row) for row in cursor.fetchall()]
+                
+                return {"scans": scans}
                 
         except Exception as e:
             self.logger.error(f"Error getting scan history: {e}")
-            return []
+            return {"scans": []}
 
     def get_scan_results(self, scan_id: int) -> Optional[Dict]:
         """Get specific scan results with full details"""
@@ -272,61 +276,52 @@ class DatabaseManager:
             self.logger.error(f"Error getting scan results: {e}")
             return None
 
-    def get_vulnerability_stats(self) -> Dict[str, int]:
+    def get_vulnerability_stats(self, scan_id: int = None) -> Dict[str, Any]:
         """Get vulnerability statistics"""
         try:
-            cursor = self.conn.cursor()
-            
-            # Get total vulnerabilities
-            cursor.execute("SELECT COUNT(*) FROM vulnerabilities")
-            total_vulns = cursor.fetchone()[0]
-            
-            # Get vulnerabilities by severity
-            cursor.execute("""
-                SELECT severity, COUNT(*) 
-                FROM vulnerabilities 
-                GROUP BY severity
-            """)
-            severity_counts = dict(cursor.fetchall())
-            
-            stats = {
-                'total_vulnerabilities': total_vulns,
-                'critical': severity_counts.get('critical', 0),
-                'high': severity_counts.get('high', 0),
-                'medium': severity_counts.get('medium', 0),
-                'low': severity_counts.get('low', 0),
-                'info': severity_counts.get('info', 0)
-            }
-            
-            return stats
-            
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                
+                if scan_id:
+                    cursor.execute('''
+                        SELECT severity, COUNT(*) as count
+                        FROM vulnerabilities
+                        WHERE scan_id = ?
+                        GROUP BY severity
+                    ''', (scan_id,))
+                else:
+                    cursor.execute('''
+                        SELECT severity, COUNT(*) as count
+                        FROM vulnerabilities
+                        GROUP BY severity
+                    ''')
+                
+                stats = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'info': 0}
+                for row in cursor.fetchall():
+                    severity, count = row
+                    stats[severity.lower()] = count
+                
+                stats['total'] = sum(stats.values())
+                return stats
+                
         except Exception as e:
             self.logger.error(f"Error getting vulnerability stats: {e}")
-            return {
-                'total_vulnerabilities': 0,
-                'critical': 0,
-                'high': 0,
-                'medium': 0,
-                'low': 0,
-                'info': 0
-            }
+            return {'total': 0}
 
     def delete_scan(self, scan_id: int) -> bool:
-        """Delete a scan and its associated vulnerabilities"""
+        """Delete a scan and all associated data"""
         try:
-            cursor = self.conn.cursor()
-            
-            # Delete vulnerabilities first
-            cursor.execute("DELETE FROM vulnerabilities WHERE scan_id = ?", (scan_id,))
-            
-            # Delete scan record
-            cursor.execute("DELETE FROM scans WHERE id = ?", (scan_id,))
-            
-            self.conn.commit()
-            return cursor.rowcount > 0
-            
+            with self._lock:
+                with sqlite3.connect(self.db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute('DELETE FROM scans WHERE id = ?', (scan_id,))
+                    deleted = cursor.rowcount > 0
+                    conn.commit()
+                    if deleted:
+                        self.logger.info(f"Deleted scan ID: {scan_id}")
+                    return deleted
         except Exception as e:
-            self.logger.error(f"Error deleting scan {scan_id}: {e}")
+            self.logger.error(f"Error deleting scan: {e}")
             return False
 
     def update_vulnerability_status(self, vuln_id: int, verified: bool = None, 
@@ -492,20 +487,53 @@ class DatabaseManager:
             self.logger.error(f"Error getting scan progress: {e}")
             return None
 
-    def get_recent_vulnerabilities(self, limit: int = 5) -> List[Dict]:
+    def get_recent_vulnerabilities(self, limit: int = 10) -> Dict[str, Any]:
         """Get recent vulnerabilities"""
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
+                
                 cursor.execute('''
-                    SELECT v.id, v.title, v.severity, v.vuln_type, s.target, v.created_at
+                    SELECT v.*, s.target, s.scan_name
                     FROM vulnerabilities v
                     JOIN scans s ON v.scan_id = s.id
                     ORDER BY v.created_at DESC
                     LIMIT ?
                 ''', (limit,))
-                return [dict(row) for row in cursor.fetchall()]
+                
+                vulnerabilities = [dict(row) for row in cursor.fetchall()]
+                return {"vulnerabilities": vulnerabilities}
+                
         except Exception as e:
             self.logger.error(f"Error getting recent vulnerabilities: {e}")
+            return {"vulnerabilities": []}
+
+    def get_recent_activity(self, limit: int = 5) -> List[Dict]:
+        """Get recent activity for dashboard"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                
+                cursor.execute('''
+                    SELECT 
+                        'scan' as activity_type,
+                        s.scan_name as title,
+                        s.target as description,
+                        s.created_at,
+                        s.status
+                    FROM scans s
+                    ORDER BY s.created_at DESC
+                    LIMIT ?
+                ''', (limit,))
+                
+                return [dict(row) for row in cursor.fetchall()]
+                
+        except Exception as e:
+            self.logger.error(f"Error getting recent activity: {e}")
             return []
+
+    def close(self):
+        """Close database connection"""
+        pass

@@ -4,16 +4,15 @@
 
 {% block content %}
 <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="bg-white shadow-sm border-b">
+    <div class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-6">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Security Dashboard</h1>
-                    <p class="mt-1 text-sm text-gray-500">Comprehensive security assessment overview</p>
+                    <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                    <p class="mt-1 text-sm text-gray-500">Security scanning overview and quick actions</p>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{{ url_for('scan_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
+                    <a href="{{ url_for('scan_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -24,10 +23,8 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Scans -->
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
@@ -46,26 +43,6 @@
                 </div>
             </div>
 
-            <!-- Completed Scans -->
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
-                                <dd class="text-lg font-medium text-gray-900" id="completed-scans">-</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Vulnerabilities -->
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
@@ -84,19 +61,36 @@
                 </div>
             </div>
 
-            <!-- High Risk -->
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <svg class="h-6 w-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
                                 <dt class="text-sm font-medium text-gray-500 truncate">High Risk</dt>
-                                <dd class="text-lg font-medium text-gray-900" id="high-risk-vulns">-</dd>
+                                <dd class="text-lg font-medium text-gray-900" id="high-risk-count">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="success-rate">-</dd>
                             </dl>
                         </div>
                     </div>
@@ -104,85 +98,99 @@
             </div>
         </div>
 
-        <!-- Vulnerability Distribution -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Recent Scans -->
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-4 py-5 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Scans</h3>
-                    <div class="space-y-4" id="recent-scans">
-                        <div class="text-center py-8">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">No scans yet</h3>
-                            <p class="mt-1 text-sm text-gray-500">Start your first security scan to see results here.</p>
-                            <div class="mt-6">
-                                <a href="{{ url_for('scan_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Start First Scan
-                                </a>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Scan</h3>
+                        <form id="quick-scan-form" class="space-y-4">
+                            <div>
+                                <label for="quick-target" class="block text-sm font-medium text-gray-700">Target URL</label>
+                                <input type="url" id="quick-target" name="target" required
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                       placeholder="https://example.com">
                             </div>
-                        </div>
+                            
+                            <div>
+                                <label for="quick-scan-type" class="block text-sm font-medium text-gray-700">Scan Type</label>
+                                <select id="quick-scan-type" name="scan_type"
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="web">Web Security</option>
+                                    <option value="api">API Security</option>
+                                    <option value="network">Network Security</option>
+                                    <option value="full">Full Scan</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" 
+                                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Start Quick Scan
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Vulnerability Severity -->
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-4 py-5 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Vulnerability Severity</h3>
-                    <div class="space-y-4">
-                        <!-- Critical -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
-                                <span class="text-sm font-medium text-gray-900">Critical</span>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900" id="critical-count">0</span>
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Scans</h3>
+                            <a href="{{ url_for('scan_page') }}" class="text-sm text-indigo-600 hover:text-indigo-500">View All</a>
                         </div>
                         
-                        <!-- High -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-orange-500 rounded-full mr-3"></div>
-                                <span class="text-sm font-medium text-gray-900">High</span>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900" id="high-count">0</span>
-                        </div>
-                        
-                        <!-- Medium -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
-                                <span class="text-sm font-medium text-gray-900">Medium</span>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900" id="medium-count">0</span>
-                        </div>
-                        
-                        <!-- Low -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-                                <span class="text-sm font-medium text-gray-900">Low</span>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900" id="low-count">0</span>
+                        <div class="overflow-hidden">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vulnerabilities</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="recent-scans-table">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                            Loading recent scans...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Activity</h3>
-                <div class="space-y-4" id="recent-activity">
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
-                        <p class="mt-1 text-sm text-gray-500">Activity will appear here after scans are completed.</p>
+        <div class="mt-8">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Vulnerabilities</h3>
+                        <a href="{{ url_for('scan_page') }}" class="text-sm text-indigo-600 hover:text-indigo-500">View All</a>
+                    </div>
+                    
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="recent-vulnerabilities-table">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                        Loading recent vulnerabilities...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -190,40 +198,50 @@
     </div>
 </div>
 
+<div id="scan-progress-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100">
+                <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Scan in Progress</h3>
+            <div class="mt-4">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%" id="scan-progress-bar"></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2" id="scan-progress-text">Initializing scan...</p>
+            </div>
+            <div class="mt-4 space-y-2" id="scan-modules-status">
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-// Load dashboard data
 document.addEventListener('DOMContentLoaded', function() {
-    loadDashboardStats();
-    loadRecentScans();
-    loadRecentActivity();
+    initializeDashboard();
     
-    // Refresh data every 30 seconds
-    setInterval(function() {
-        loadDashboardStats();
-        loadRecentScans();
-        loadRecentActivity();
-    }, 30000);
+    initializeQuickScanForm();
 });
+
+function initializeDashboard() {
+    loadDashboardStats();
+    
+    loadRecentScans();
+    
+    loadRecentVulnerabilities();
+}
 
 function loadDashboardStats() {
     fetch('/api/dashboard/stats')
         .then(response => response.json())
         .then(data => {
-            if (data.error) {
-                console.error('Error loading dashboard stats:', data.error);
-                return;
-            }
-            
             document.getElementById('total-scans').textContent = data.total_scans || 0;
-            document.getElementById('completed-scans').textContent = data.completed_scans || 0;
             document.getElementById('total-vulnerabilities').textContent = data.total_vulnerabilities || 0;
-            document.getElementById('high-risk-vulns').textContent = data.high_risk_vulns || 0;
-            
-            // Update vulnerability counts
-            document.getElementById('critical-count').textContent = data.critical_count || 0;
-            document.getElementById('high-count').textContent = data.high_risk_vulns || 0;
-            document.getElementById('medium-count').textContent = data.medium_risk_vulns || 0;
-            document.getElementById('low-count').textContent = data.low_risk_vulns || 0;
+            document.getElementById('high-risk-count').textContent = data.high_risk_count || 0;
+            document.getElementById('success-rate').textContent = (data.success_rate || 0) + '%';
         })
         .catch(error => {
             console.error('Error loading dashboard stats:', error);
@@ -234,131 +252,217 @@ function loadRecentScans() {
     fetch('/api/scans?limit=5')
         .then(response => response.json())
         .then(data => {
-            if (data.error) {
-                console.error('Error loading recent scans:', data.error);
-                return;
-            }
+            const tableBody = document.getElementById('recent-scans-table');
             
-            const container = document.getElementById('recent-scans');
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No scans yet</h3>
-                        <p class="mt-1 text-sm text-gray-500">Start your first security scan to see results here.</p>
-                        <div class="mt-6">
-                            <a href="{{ url_for('scan_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                Start First Scan
-                            </a>
-                        </div>
-                    </div>
+            if (data.scans && data.scans.length > 0) {
+                tableBody.innerHTML = data.scans.map(scan => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <a href="/scan/${scan.id}" class="text-indigo-600 hover:text-indigo-900">${scan.target}</a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${scan.scan_type}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(scan.status)}">
+                                ${scan.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${scan.vulnerability_count || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(scan.created_at)}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No scans found
+                        </td>
+                    </tr>
                 `;
-                return;
             }
-            
-            container.innerHTML = data.map(scan => `
-                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-150">
-                    <div class="flex items-center space-x-4">
-                        <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">${scan.scan_name || 'Unnamed Scan'}</p>
-                            <p class="text-sm text-gray-500">${scan.target}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(scan.status)}">
-                            ${scan.status}
-                        </span>
-                        <span class="text-sm text-gray-500">${formatDate(scan.created_at)}</span>
-                    </div>
-                </div>
-            `).join('');
         })
         .catch(error => {
             console.error('Error loading recent scans:', error);
         });
 }
 
-function loadRecentActivity() {
-    fetch('/api/dashboard/stats')
+function loadRecentVulnerabilities() {
+    fetch('/api/vulnerabilities?limit=5')
         .then(response => response.json())
         .then(data => {
-            if (data.error) {
-                console.error('Error loading recent activity:', data.error);
-                return;
-            }
+            const tableBody = document.getElementById('recent-vulnerabilities-table');
             
-            const container = document.getElementById('recent-activity');
-            
-            if (!data.recent_activity || data.recent_activity.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
-                        <p class="mt-1 text-sm text-gray-500">Activity will appear here after scans are completed.</p>
-                    </div>
+            if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+                tableBody.innerHTML = data.vulnerabilities.map(vuln => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <a href="/vulnerability/${vuln.id}" class="text-indigo-600 hover:text-indigo-900">${vuln.title}</a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSeverityClass(vuln.severity)}">
+                                ${vuln.severity}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${vuln.type}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${vuln.target}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(vuln.created_at)}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No vulnerabilities found
+                        </td>
+                    </tr>
                 `;
-                return;
             }
-            
-            container.innerHTML = data.recent_activity.map(activity => `
-                <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">${activity.description}</p>
-                        <p class="text-sm text-gray-500">${formatDate(activity.timestamp)}</p>
-                    </div>
-                </div>
-            `).join('');
         })
         .catch(error => {
-            console.error('Error loading recent activity:', error);
+            console.error('Error loading recent vulnerabilities:', error);
         });
 }
 
 function getStatusClass(status) {
-    switch (status) {
-        case 'Completed':
+    switch (status.toLowerCase()) {
+        case 'completed':
             return 'bg-green-100 text-green-800';
-        case 'Running':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'Failed':
+        case 'running':
+            return 'bg-blue-100 text-blue-800';
+        case 'failed':
             return 'bg-red-100 text-red-800';
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function getSeverityClass(severity) {
+    switch (severity.toLowerCase()) {
+        case 'critical':
+            return 'bg-red-100 text-red-800';
+        case 'high':
+            return 'bg-orange-100 text-orange-800';
+        case 'medium':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'low':
+            return 'bg-blue-100 text-blue-800';
         default:
             return 'bg-gray-100 text-gray-800';
     }
 }
 
 function formatDate(dateString) {
-    if (!dateString) return 'Unknown';
-    
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+function initializeQuickScanForm() {
+    const form = document.getElementById('quick-scan-form');
     
-    if (diffInHours < 1) {
-        return 'Just now';
-    } else if (diffInHours < 24) {
-        return `${Math.floor(diffInHours)} hours ago`;
-    } else {
-        return date.toLocaleDateString();
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const scanData = {
+            target: formData.get('target'),
+            scan_type: formData.get('scan_type'),
+            scan_name: `Quick Scan - ${formData.get('target')}`,
+            scan_depth: 'normal',
+            threads: 10,
+            timeout: 30
+        };
+        
+        startQuickScan(scanData);
+    });
+}
+
+function startQuickScan(scanData) {
+    document.getElementById('scan-progress-modal').classList.remove('hidden');
+    
+    fetch('/api/scan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scanData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            monitorScanProgress(data.scan_id);
+        } else {
+            showNotification('Error starting scan: ' + data.error, 'error');
+            hideScanProgressModal();
+        }
+    })
+    .catch(error => {
+        console.error('Error starting scan:', error);
+        showNotification('Error starting scan', 'error');
+        hideScanProgressModal();
+    });
+}
+
+function monitorScanProgress(scanId) {
+    const progressBar = document.getElementById('scan-progress-bar');
+    const progressText = document.getElementById('scan-progress-text');
+    const modulesStatus = document.getElementById('scan-modules-status');
+    
+    const checkProgress = () => {
+        fetch(`/api/scan/${scanId}/progress`)
+            .then(response => response.json())
+            .then(data => {
+                const progress = data.progress || 0;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = data.status || 'Scanning...';
+                
+                if (data.modules) {
+                    modulesStatus.innerHTML = Object.entries(data.modules).map(([module, status]) => `
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">${module}</span>
+                            <span class="inline-flex items-center">
+                                ${getModuleStatusIcon(status)}
+                                <span class="ml-1 text-gray-500">${status}</span>
+                            </span>
+                        </div>
+                    `).join('');
+                }
+                
+                if (data.status === 'completed' || data.status === 'failed') {
+                    hideScanProgressModal();
+                    if (data.status === 'completed') {
+                        showNotification('Scan completed successfully!', 'success');
+                        window.location.href = `/scan/${scanId}`;
+                    } else {
+                        showNotification('Scan failed', 'error');
+                    }
+                } else {
+                    setTimeout(checkProgress, 2000);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking scan progress:', error);
+                hideScanProgressModal();
+            });
+    };
+    
+    checkProgress();
+}
+
+function hideScanProgressModal() {
+    document.getElementById('scan-progress-modal').classList.add('hidden');
+}
+
+function getModuleStatusIcon(status) {
+    switch (status.toLowerCase()) {
+        case 'completed':
+            return '<svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+        case 'running':
+            return '<svg class="w-4 h-4 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+        case 'failed':
+            return '<svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
+        default:
+            return '<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>';
     }
 }
 </script>

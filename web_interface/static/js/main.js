@@ -1,26 +1,26 @@
-/**
- * SAYN Security Scanner - Main JavaScript
- * Enhanced web interface functionality
- */
-
-// Global variables
+let socket = null;
 let currentScanId = null;
-let scanProgressInterval = null;
+let scanProgress = 0;
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSocketIO();
-    initializeEventListeners();
-    initializeTooltips();
-    initializeNotifications();
+    initializeApp();
 });
 
-/**
- * Initialize SocketIO connection
- */
-function initializeSocketIO() {
-    if (typeof io !== 'undefined') {
-        const socket = io();
+
+function initializeApp() {
+    initializeWebSocket();
+    initializeEventListeners();
+    initializeTooltips();
+    initializeModals();
+    initializeForms();
+    
+    console.log('SAYN Security Scanner initialized');
+}
+
+
+function initializeWebSocket() {
+    try {
+        socket = io();
         
         socket.on('connect', function() {
             console.log('Connected to SAYN Scanner');
@@ -28,8 +28,12 @@ function initializeSocketIO() {
         });
         
         socket.on('disconnect', function() {
-            console.log('Disconnected from SAYN Scanner');
+            console.log('Disconnected from scanner');
             showNotification('Disconnected from scanner', 'warning');
+        });
+        
+        socket.on('scan_progress', function(data) {
+            updateScanProgress(data);
         });
         
         socket.on('scan_completed', function(data) {
@@ -40,293 +44,337 @@ function initializeSocketIO() {
             handleScanError(data);
         });
         
-        socket.on('scan_progress', function(data) {
-            updateScanProgress(data);
-        });
-        
-        // Store socket globally
-        window.saynSocket = socket;
+    } catch (error) {
+        console.error('WebSocket initialization failed:', error);
     }
 }
 
-/**
- * Initialize event listeners
- */
+
 function initializeEventListeners() {
-    // Scan form submission
-    const scanForm = document.getElementById('scan-form');
+    const scanForm = document.getElementById('scan-config-form');
     if (scanForm) {
         scanForm.addEventListener('submit', handleScanSubmit);
     }
     
-    // Quick scan buttons
-    const quickScanButtons = document.querySelectorAll('.quick-scan-btn');
-    quickScanButtons.forEach(button => {
-        button.addEventListener('click', handleQuickScan);
-    });
-    
-    // Scan type selection
-    const scanTypeSelect = document.getElementById('scan-type');
-    if (scanTypeSelect) {
-        scanTypeSelect.addEventListener('change', handleScanTypeChange);
+    const quickScanForm = document.getElementById('quick-scan-form');
+    if (quickScanForm) {
+        quickScanForm.addEventListener('submit', handleQuickScanSubmit);
     }
     
-    // Scan depth selection
-    const scanDepthSelect = document.getElementById('scan-depth');
-    if (scanDepthSelect) {
-        scanDepthSelect.addEventListener('change', handleScanDepthChange);
-    }
-    
-    // Modal close buttons
-    const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-overlay');
-    modalCloseButtons.forEach(button => {
+    document.querySelectorAll('.modal-close').forEach(button => {
         button.addEventListener('click', closeModal);
     });
     
-    // Keyboard shortcuts
-    document.addEventListener('keydown', handleKeyboardShortcuts);
-}
-
-/**
- * Handle scan form submission
- */
-function handleScanSubmit(event) {
-    event.preventDefault();
-    
-    const formData = new FormData(event.target);
-    const scanData = {
-        target: formData.get('target'),
-        scan_name: formData.get('scan_name') || `Scan - ${formData.get('target')}`,
-        scan_type: formData.get('scan_type'),
-        scan_depth: formData.get('scan_depth'),
-        threads: parseInt(formData.get('threads')) || 10,
-        timeout: parseInt(formData.get('timeout')) || 30
-    };
-    
-    if (!scanData.target) {
-        showNotification('Target URL is required', 'error');
-        return;
-    }
-    
-    startScan(scanData);
-}
-
-/**
- * Handle quick scan button clicks
- */
-function handleQuickScan(event) {
-    event.preventDefault();
-    
-    const button = event.currentTarget;
-    const target = button.dataset.target;
-    const scanType = button.dataset.scanType || 'web';
-    
-    const scanData = {
-        target: target,
-        scan_name: `Quick ${scanType.charAt(0).toUpperCase() + scanType.slice(1)} Scan - ${target}`,
-        scan_type: scanType,
-        scan_depth: 'normal',
-        threads: 10,
-        timeout: 30
-    };
-    
-    startScan(scanData);
-}
-
-/**
- * Start a new scan
- */
-function startScan(scanData) {
-    showScanProgressModal();
-    
-    fetch('/api/scan', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(scanData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.scan_id) {
-            currentScanId = data.scan_id;
-            showNotification('Scan started successfully', 'success');
-            monitorScanProgress(data.scan_id);
-        } else {
-            showNotification('Error starting scan: ' + (data.error || 'Unknown error'), 'error');
-            hideScanProgressModal();
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target);
         }
-    })
-    .catch(error => {
-        console.error('Error starting scan:', error);
-        showNotification('Error starting scan', 'error');
-        hideScanProgressModal();
+    });
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAllModals();
+        }
     });
 }
 
-/**
- * Monitor scan progress
- */
-function monitorScanProgress(scanId) {
-    if (scanProgressInterval) {
-        clearInterval(scanProgressInterval);
-    }
+
+function initializeTooltips() {
+    const tooltipElements = document.querySelectorAll('[data-tooltip]');
     
-    scanProgressInterval = setInterval(() => {
-        fetch(`/api/scan/${scanId}/progress`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error('Error getting scan progress:', data.error);
-                    return;
-                }
-                
-                updateProgressUI(data);
-                
-                if (data.status === 'completed' || data.status === 'failed') {
-                    clearInterval(scanProgressInterval);
-                    scanProgressInterval = null;
-                    
-                    if (data.status === 'completed') {
-                        showNotification('Scan completed successfully!', 'success');
-                        setTimeout(() => {
-                            hideScanProgressModal();
-                            window.location.href = `/scan/${scanId}`;
-                        }, 2000);
-                    } else {
-                        showNotification('Scan failed', 'error');
-                        hideScanProgressModal();
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error monitoring scan progress:', error);
-            });
-    }, 2000);
+    tooltipElements.forEach(element => {
+        element.addEventListener('mouseenter', showTooltip);
+        element.addEventListener('mouseleave', hideTooltip);
+    });
 }
 
-/**
- * Update progress UI
- */
-function updateProgressUI(data) {
-    const progressBar = document.getElementById('scan-progress-bar');
-    const progressText = document.getElementById('scan-progress-text');
-    const modulesStatus = document.getElementById('scan-modules-status');
+
+function initializeModals() {
+    document.querySelectorAll('[data-modal]').forEach(button => {
+        button.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-modal');
+            openModal(modalId);
+        });
+    });
+}
+
+
+function initializeForms() {
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', validateForm);
+    });
     
-    if (progressBar) {
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('change', autoSaveForm);
+    });
+}
+
+
+async function handleScanSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    if (!validateScanForm(formData)) {
+        return;
+    }
+    
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting Scan...';
+    
+    try {
+        const scanData = {
+            target: formData.get('target'),
+            scan_name: formData.get('scan-name') || `Scan ${new Date().toLocaleString()}`,
+            scan_type: getSelectedScanTypes(),
+            scan_depth: formData.get('scan-depth') || 'normal',
+            threads: parseInt(formData.get('threads')) || 10,
+            timeout: parseInt(formData.get('timeout')) || 30
+        };
+        
+        const response = await fetch('/api/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(scanData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            currentScanId = result.scan_id;
+            showScanProgress();
+            showNotification('Scan started successfully', 'success');
+        } else {
+            throw new Error(result.error || 'Failed to start scan');
+        }
+        
+    } catch (error) {
+        console.error('Scan submission error:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+    }
+}
+
+async function handleQuickScanSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const targetUrl = form.querySelector('#target-url').value;
+    
+    if (!targetUrl) {
+        showNotification('Please enter a target URL', 'error');
+        return;
+    }
+    
+    const scanData = {
+        target: targetUrl,
+        scan_type: 'web',
+        scan_depth: 'quick',
+        threads: 5,
+        timeout: 15
+    };
+    
+    try {
+        const response = await fetch('/api/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(scanData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            currentScanId = result.scan_id;
+            showNotification('Quick scan started', 'success');
+            window.location.href = `/scan/${result.scan_id}`;
+        } else {
+            throw new Error(result.error || 'Failed to start scan');
+        }
+        
+    } catch (error) {
+        console.error('Quick scan error:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+    }
+}
+
+
+function getSelectedScanTypes() {
+    const checkboxes = document.querySelectorAll('input[name="scan-type"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value).join(',');
+}
+
+
+function validateScanForm(formData) {
+    const target = formData.get('target');
+    
+    if (!target) {
+        showNotification('Target URL is required', 'error');
+        return false;
+    }
+    
+    try {
+        new URL(target);
+    } catch (error) {
+        showNotification('Please enter a valid URL', 'error');
+        return false;
+    }
+    
+    return true;
+}
+
+
+function showScanProgress() {
+    const progressSection = document.getElementById('scan-progress');
+    if (progressSection) {
+        progressSection.classList.remove('hidden');
+        progressSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+
+function updateScanProgress(data) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercent = document.getElementById('progress-percent');
+    const currentModule = document.getElementById('current-module');
+    
+    if (progressBar && progressPercent) {
         const progress = data.progress || 0;
         progressBar.style.width = `${progress}%`;
-        progressBar.setAttribute('aria-valuenow', progress);
+        progressPercent.textContent = `${progress}%`;
+        
+        if (progress === 100) {
+            progressBar.className = 'bg-green-600 h-2.5 rounded-full';
+        } else if (progress > 50) {
+            progressBar.className = 'bg-blue-600 h-2.5 rounded-full';
+        }
     }
     
-    if (progressText) {
-        progressText.textContent = data.status || 'Scanning...';
+    if (currentModule && data.message) {
+        currentModule.textContent = data.message;
     }
     
-    if (modulesStatus && data.modules) {
-        modulesStatus.innerHTML = Object.entries(data.modules).map(([module, status]) => `
-            <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-600">${module}</span>
-                <span class="inline-flex items-center">
-                    ${getModuleStatusIcon(status)}
-                    <span class="ml-1 text-gray-500">${status}</span>
-                </span>
-            </div>
-        `).join('');
+    if (data.modules) {
+        updateModuleStatus(data.modules);
     }
 }
 
-/**
- * Handle scan completion
- */
+
+function updateModuleStatus(modules) {
+    modules.forEach((module, index) => {
+        const moduleElement = document.querySelector(`#modules-list li:nth-child(${index + 1}) div:first-child i`);
+        if (moduleElement) {
+            const iconClass = getModuleStatusIcon(module.status);
+            moduleElement.className = iconClass;
+        }
+    });
+}
+
+
+function getModuleStatusIcon(status) {
+    switch (status) {
+        case 'completed':
+            return 'fas fa-check-circle text-green-500';
+        case 'running':
+            return 'fas fa-spinner text-blue-500 animate-spin';
+        case 'failed':
+            return 'fas fa-times-circle text-red-500';
+        default:
+            return 'fas fa-circle-notch text-gray-300';
+    }
+}
+
+
 function handleScanCompleted(data) {
-    if (data.scan_id === currentScanId) {
-        showNotification('Scan completed successfully!', 'success');
+    showNotification('Scan completed successfully!', 'success');
+    
+    updateScanProgress({ progress: 100, message: 'Scan completed!' });
+    
+    const resultsButton = document.createElement('a');
+    resultsButton.href = `/scan/${data.scan_id}`;
+    resultsButton.className = 'btn btn-primary mt-4';
+    resultsButton.innerHTML = '<i class="fas fa-chart-bar mr-2"></i>View Results';
+    
+    const progressSection = document.getElementById('scan-progress');
+    if (progressSection) {
+        progressSection.appendChild(resultsButton);
+    }
+    
+    if (window.location.pathname === '/') {
         setTimeout(() => {
-            hideScanProgressModal();
-            window.location.href = `/scan/${data.scan_id}`;
+            window.location.reload();
         }, 2000);
     }
 }
 
-/**
- * Handle scan error
- */
+
 function handleScanError(data) {
-    if (data.scan_id === currentScanId) {
-        showNotification('Scan failed: ' + data.error, 'error');
-        hideScanProgressModal();
+    showNotification(`Scan failed: ${data.error}`, 'error');
+    
+    updateScanProgress({ progress: 0, message: 'Scan failed' });
+    
+    const retryButton = document.createElement('button');
+    retryButton.className = 'btn btn-secondary mt-4';
+    retryButton.innerHTML = '<i class="fas fa-redo mr-2"></i>Retry Scan';
+    retryButton.onclick = () => window.location.reload();
+    
+    const progressSection = document.getElementById('scan-progress');
+    if (progressSection) {
+        progressSection.appendChild(retryButton);
     }
 }
 
-/**
- * Update scan progress from SocketIO
- */
-function updateScanProgress(data) {
-    if (data.scan_id === currentScanId) {
-        updateProgressUI(data);
-    }
-}
 
-/**
- * Show scan progress modal
- */
-function showScanProgressModal() {
-    const modal = document.getElementById('scan-progress-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
-}
-
-/**
- * Hide scan progress modal
- */
-function hideScanProgressModal() {
-    const modal = document.getElementById('scan-progress-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
-}
-
-/**
- * Close modal
- */
-function closeModal() {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.classList.add('hidden');
-    });
-    document.body.classList.remove('overflow-hidden');
-}
-
-/**
- * Show notification
- */
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${getNotificationClass(type)}`;
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg border-l-4 max-w-sm transition-all duration-300 transform translate-x-full`;
+    
+    const styles = {
+        success: 'bg-green-50 border-green-500 text-green-700',
+        error: 'bg-red-50 border-red-500 text-red-700',
+        warning: 'bg-yellow-50 border-yellow-500 text-yellow-700',
+        info: 'bg-blue-50 border-blue-500 text-blue-700'
+    };
+    
+    notification.className += ` ${styles[type] || styles.info}`;
+    
+    const icon = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    }[type];
+    
     notification.innerHTML = `
-        <div class="flex items-center">
-            ${getNotificationIcon(type)}
-            <span class="ml-2">${message}</span>
-            <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="${icon} text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium">${message}</p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button class="text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
     `;
     
     document.body.appendChild(notification);
     
-    // Animate in
     setTimeout(() => {
         notification.classList.remove('translate-x-full');
     }, 100);
     
-    // Auto remove after 5 seconds
     setTimeout(() => {
         notification.classList.add('translate-x-full');
         setTimeout(() => {
@@ -337,153 +385,173 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-/**
- * Get notification CSS class
- */
-function getNotificationClass(type) {
-    switch (type) {
-        case 'success':
-            return 'bg-green-500 text-white';
-        case 'error':
-            return 'bg-red-500 text-white';
-        case 'warning':
-            return 'bg-yellow-500 text-white';
-        case 'info':
-        default:
-            return 'bg-blue-500 text-white';
-    }
-}
 
-/**
- * Get notification icon
- */
-function getNotificationIcon(type) {
-    switch (type) {
-        case 'success':
-            return '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-        case 'error':
-            return '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-        case 'warning':
-            return '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>';
-        case 'info':
-        default:
-            return '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-    }
-}
-
-/**
- * Get module status icon
- */
-function getModuleStatusIcon(status) {
-    switch (status.toLowerCase()) {
-        case 'completed':
-            return '<svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
-        case 'running':
-            return '<svg class="w-4 h-4 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
-        case 'failed':
-            return '<svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
-        default:
-            return '<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>';
-    }
-}
-
-/**
- * Handle keyboard shortcuts
- */
-function handleKeyboardShortcuts(event) {
-    // Ctrl/Cmd + N for new scan
-    if ((event.ctrlKey || event.metaKey) && event.key === 'n') {
-        event.preventDefault();
-        window.location.href = '/scan';
-    }
-    
-    // Ctrl/Cmd + H for history
-    if ((event.ctrlKey || event.metaKey) && event.key === 'h') {
-        event.preventDefault();
-        window.location.href = '/history';
-    }
-    
-    // Escape to close modals
-    if (event.key === 'Escape') {
-        closeModal();
-    }
-}
-
-/**
- * Initialize tooltips
- */
-function initializeTooltips() {
-    const tooltipElements = document.querySelectorAll('[data-tooltip]');
-    tooltipElements.forEach(element => {
-        element.addEventListener('mouseenter', showTooltip);
-        element.addEventListener('mouseleave', hideTooltip);
-    });
-}
-
-/**
- * Show tooltip
- */
 function showTooltip(event) {
-    const element = event.target;
-    const tooltipText = element.getAttribute('data-tooltip');
-    
+    const tooltipText = this.getAttribute('data-tooltip');
     const tooltip = document.createElement('div');
-    tooltip.className = 'absolute z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg';
+    
+    tooltip.className = 'absolute z-10 p-2 text-xs text-white bg-gray-800 rounded shadow-lg';
     tooltip.textContent = tooltipText;
-    tooltip.id = 'tooltip';
+    tooltip.style.top = `${this.offsetTop - 30}px`;
+    tooltip.style.left = `${this.offsetLeft + this.offsetWidth / 2}px`;
+    tooltip.style.transform = 'translateX(-50%)';
     
-    document.body.appendChild(tooltip);
+    this.appendChild(tooltip);
     
-    const rect = element.getBoundingClientRect();
-    tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-    tooltip.style.top = rect.top - tooltip.offsetHeight - 5 + 'px';
-}
-
-/**
- * Hide tooltip
- */
-function hideTooltip() {
-    const tooltip = document.getElementById('tooltip');
-    if (tooltip) {
-        tooltip.remove();
+    const rect = tooltip.getBoundingClientRect();
+    if (rect.right > window.innerWidth) {
+        tooltip.style.left = `${window.innerWidth - rect.width - 10}px`;
+        tooltip.style.transform = 'none';
+    }
+    if (rect.left < 0) {
+        tooltip.style.left = '10px';
+        tooltip.style.transform = 'none';
     }
 }
 
-/**
- * Initialize notifications
- */
-function initializeNotifications() {
-    // Check for existing notifications and remove them
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => {
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
+
+function hideTooltip() {
+    const tooltip = this.querySelector('div[class*="absolute z-10"]');
+    if (tooltip) {
+        this.removeChild(tooltip);
+    }
+}
+
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        const firstInput = modal.querySelector('input, select, textarea');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    }
+}
+
+
+function closeModal(modal) {
+    if (typeof modal === 'string') {
+        modal = document.getElementById(modal);
+    }
+    
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+
+function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        closeModal(modal);
     });
 }
 
-/**
- * Format date
- */
-function formatDate(dateString) {
-    if (!dateString) return 'Unknown';
+
+function validateForm(event) {
+    const form = event.target;
+    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+    let isValid = true;
     
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            input.classList.remove('border-red-500');
+        }
+    });
     
-    if (diffInHours < 1) {
-        return 'Just now';
-    } else if (diffInHours < 24) {
-        return `${Math.floor(diffInHours)} hours ago`;
-    } else {
-        return date.toLocaleDateString();
+    if (!isValid) {
+        event.preventDefault();
+        showNotification('Please fill in all required fields', 'error');
+    }
+    
+    return isValid;
+}
+
+
+function autoSaveForm(event) {
+    const input = event.target;
+    const form = input.closest('form');
+    
+    if (form) {
+        const formData = new FormData(form);
+        const formId = form.id || 'default';
+        
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+        
+        localStorage.setItem(`sayn_form_${formId}`, JSON.stringify(data));
     }
 }
 
-/**
- * Format file size
- */
+
+function loadSavedFormData(formId = 'default') {
+    const savedData = localStorage.getItem(`sayn_form_${formId}`);
+    
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        const form = document.getElementById(formId);
+        
+        if (form) {
+            Object.keys(data).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    input.value = data[key];
+                }
+            });
+        }
+    }
+}
+
+
+function exportToCSV(data, filename) {
+    const csvContent = convertToCSV(data);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+
+function convertToCSV(data) {
+    if (!data || data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [headers.join(',')];
+    
+    data.forEach(row => {
+        const values = headers.map(header => {
+            const value = row[header] || '';
+            return `"${value.toString().replace(/"/g, '""')}"`;
+        });
+        csvRows.push(values.join(','));
+    });
+    
+    return csvRows.join('\n');
+}
+
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     
@@ -494,63 +562,45 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-/**
- * Copy to clipboard
- */
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        showNotification('Copied to clipboard', 'success');
-    }).catch(() => {
-        showNotification('Failed to copy to clipboard', 'error');
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('form').forEach(form => {
+        const formId = form.id || 'default';
+        loadSavedFormData(formId);
     });
-}
+});
 
-/**
- * Export data
- */
-function exportData(data, filename, type = 'json') {
-    let content, mimeType;
-    
-    if (type === 'json') {
-        content = JSON.stringify(data, null, 2);
-        mimeType = 'application/json';
-    } else if (type === 'csv') {
-        content = convertToCSV(data);
-        mimeType = 'text/csv';
-    }
-    
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification('Data exported successfully', 'success');
-}
-
-/**
- * Convert data to CSV
- */
-function convertToCSV(data) {
-    if (!Array.isArray(data) || data.length === 0) return '';
-    
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-        headers.join(','),
-        ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
-    ].join('\n');
-    
-    return csvContent;
-}
-
-// Export functions for global use
-window.showNotification = showNotification;
-window.formatDate = formatDate;
-window.formatFileSize = formatFileSize;
-window.copyToClipboard = copyToClipboard;
-window.exportData = exportData;
+window.SAYN = {
+    showNotification,
+    openModal,
+    closeModal,
+    exportToCSV,
+    formatDate,
+    formatFileSize
+};
