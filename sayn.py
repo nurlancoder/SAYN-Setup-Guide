@@ -87,7 +87,6 @@ class SAYN:
         try:
             # Ensure scanner engine is passed to all modules
             options['scanner_engine'] = self.scanner_engine
-            self.logger.info(f"Scanner engine passed to options: {type(self.scanner_engine)}")
             
             scan_tasks = []
             
@@ -268,7 +267,20 @@ Examples:
             print("Starting SAYN Web Interface...")
             print(f"Access at: http://{args.host}:{args.port}")
             
-            app.socketio.run(app, host=args.host, port=args.port, debug=False)
+            # Try multiple ports if the default is busy
+            ports_to_try = [args.port, 5001, 8081, 9000, 7000]
+            for try_port in ports_to_try:
+                try:
+                    print(f"Trying to start web interface on port {try_port}...")
+                    app.socketio.run(app, host=args.host, port=try_port, debug=False)
+                    break
+                except OSError as e:
+                    if "Address already in use" in str(e) and try_port != ports_to_try[-1]:
+                        print(f"Port {try_port} is busy, trying next port...")
+                        continue
+                    else:
+                        print(f"Failed to start web interface: {e}")
+                        break
             return
         
         if not args.url:

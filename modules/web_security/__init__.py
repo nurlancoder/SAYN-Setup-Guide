@@ -37,7 +37,8 @@ class WebSecurityScanner:
         
         try:
             # Ensure scanner engine is available for all sub-scanners
-            if 'scanner_engine' not in options:
+            scanner_engine = options.get('scanner_engine')
+            if not scanner_engine:
                 raise ValueError("Scanner engine not provided in options")
             
             scan_tasks = []

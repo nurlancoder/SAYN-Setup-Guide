@@ -97,7 +97,7 @@
     "web_interface": {
         "host": "0.0.0.0",
         "port": 5000,
-        "secret_key": "sayn-secret-key-change-in-production",
+        "secret_key": "sayn-security-scanner-production-key-2024",
         "debug": false,
         "ssl_enabled": false,
         "ssl_cert": "",
