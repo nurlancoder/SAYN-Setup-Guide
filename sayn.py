@@ -125,7 +125,13 @@ class SAYN:
             end_time = datetime.now()
             scan_results['duration'] = str(end_time - start_time)
             
-            self.db.save_scan_results(scan_results)
+            # Remove scanner_engine from scan_results before saving to avoid JSON serialization error
+            scan_results_copy = scan_results.copy()
+            if 'scanner_engine' in scan_results_copy.get('options', {}):
+                scan_results_copy['options'] = scan_results_copy['options'].copy()
+                del scan_results_copy['options']['scanner_engine']
+            
+            self.db.save_scan_results(scan_results_copy)
             
             self.logger.info(f"Scan completed in {scan_results['duration']}")
             self.logger.info(f"Found {scan_results['summary']['total_vulnerabilities']} vulnerabilities")

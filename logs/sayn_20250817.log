@@ -72,3 +72,23 @@
 2025-08-17 14:33:21,761 - SAYN.database - ERROR - save_scan_results:181 - Error saving scan results: Object of type ScannerEngine is not JSON serializable
 2025-08-17 14:33:21,762 - SAYN - ERROR - error:63 - Scan error: Object of type ScannerEngine is not JSON serializable
 2025-08-17 14:33:21,769 - SAYN - INFO - info:60 - Report generated: reports\sayn_report_8cb584ff_20250817_143321.html
+2025-08-17 14:37:38,147 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:37:40,218 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:37:42,358 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:37:42,359 - SAYN - INFO - info:60 - Starting scan of https://httpbin.org/get with modules: ['web']
+2025-08-17 14:37:42,364 - SAYN.database - INFO - create_scan_record:119 - Created scan record with ID: 8
+2025-08-17 14:37:42,365 - SAYN.xss_scanner - INFO - scan:63 - Starting XSS scan for https://httpbin.org/get
+2025-08-17 14:37:42,374 - SAYN.sqli_scanner - INFO - scan:101 - Starting SQL injection scan for https://httpbin.org/get
+2025-08-17 14:37:42,375 - SAYN.headers_scanner - INFO - scan:111 - Starting security headers scan for https://httpbin.org/get
+2025-08-17 14:37:42,376 - SAYN.csrf_scanner - INFO - scan:66 - Starting CSRF scan for https://httpbin.org/get
+2025-08-17 14:37:42,376 - SAYN.file_inclusion_scanner - INFO - scan:82 - Starting file inclusion scan for https://httpbin.org/get
+2025-08-17 14:37:44,934 - SAYN.sqli_scanner - INFO - scan:137 - SQL injection scan completed. Found 0 vulnerabilities
+2025-08-17 14:37:45,959 - SAYN.headers_scanner - INFO - scan:151 - Security headers scan completed. Found 11 issues
+2025-08-17 14:37:49,032 - SAYN.file_inclusion_scanner - INFO - scan:120 - File inclusion scan completed. Found 0 vulnerabilities
+2025-08-17 14:37:50,913 - SAYN.csrf_scanner - INFO - scan:102 - CSRF scan completed. Found 0 vulnerabilities
+2025-08-17 14:37:52,821 - SAYN.xss_scanner - INFO - scan:104 - XSS scan completed. Found 0 vulnerabilities
+2025-08-17 14:37:52,822 - SAYN.config - INFO - scan:82 - Web security scan completed for https://httpbin.org/get in 10.45s
+2025-08-17 14:37:52,834 - SAYN.database - INFO - save_scan_results:178 - Saved scan results for scan ID: 8
+2025-08-17 14:37:52,835 - SAYN - INFO - info:60 - Scan completed in 0:00:10.464017
+2025-08-17 14:37:52,835 - SAYN - INFO - info:60 - Found 11 vulnerabilities
+2025-08-17 14:37:52,837 - SAYN - INFO - info:60 - Report generated: reports\sayn_report_8cb584ff_20250817_143752.html
