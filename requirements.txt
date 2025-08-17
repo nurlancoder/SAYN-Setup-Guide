@@ -1,6 +1,5 @@
 # Core dependencies
 aiohttp==3.8.5
-asyncio==3.4.3
 flask==2.3.3
 flask-socketio==5.3.6
 python-socketio==5.8.0
@@ -18,9 +17,6 @@ beautifulsoup4==4.12.2
 lxml==4.9.3
 html5lib==1.1
 
-# Database
-sqlite3
-
 # Configuration and utilities
 python-dotenv==1.0.0
 pyyaml==6.0.1
@@ -32,7 +28,6 @@ tldextract==5.1.1
 dnspython==2.4.2
 
 # Report generation
-weasyprint==60.1
 jinja2==3.1.2
 
 # Development and testing
@@ -46,3 +41,32 @@ flake8==6.0.0
 click==8.1.7
 rich==13.5.2
 typer==0.9.0
+
+# Async support
+asyncio-mqtt==0.13.0
+
+# Additional security tools
+python-nmap==0.7.1
+
+# Web interface enhancements
+flask-cors==4.0.0
+flask-limiter==3.5.0
+
+# Data processing
+pandas==2.0.3
+numpy==1.24.3
+
+# Visualization
+matplotlib==3.7.2
+seaborn==0.12.2
+
+# API testing
+httpx==0.24.1
+websockets==11.0.3
+
+# File handling
+filetype==1.2.0
+
+# Logging and monitoring
+structlog==23.1.0
+prometheus-client==0.17.1

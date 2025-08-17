@@ -272,52 +272,61 @@ class DatabaseManager:
             self.logger.error(f"Error getting scan results: {e}")
             return None
 
-    def get_vulnerability_stats(self, scan_id: int = None) -> Dict[str, Any]:
+    def get_vulnerability_stats(self) -> Dict[str, int]:
         """Get vulnerability statistics"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                
-                if scan_id:
-                    cursor.execute('''
-                        SELECT severity, COUNT(*) as count
-                        FROM vulnerabilities
-                        WHERE scan_id = ?
-                        GROUP BY severity
-                    ''', (scan_id,))
-                else:
-                    cursor.execute('''
-                        SELECT severity, COUNT(*) as count
-                        FROM vulnerabilities
-                        GROUP BY severity
-                    ''')
-                
-                stats = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'info': 0}
-                for row in cursor.fetchall():
-                    severity, count = row
-                    stats[severity.lower()] = count
-                
-                stats['total'] = sum(stats.values())
-                return stats
-                
+            cursor = self.conn.cursor()
+            
+            # Get total vulnerabilities
+            cursor.execute("SELECT COUNT(*) FROM vulnerabilities")
+            total_vulns = cursor.fetchone()[0]
+            
+            # Get vulnerabilities by severity
+            cursor.execute("""
+                SELECT severity, COUNT(*) 
+                FROM vulnerabilities 
+                GROUP BY severity
+            """)
+            severity_counts = dict(cursor.fetchall())
+            
+            stats = {
+                'total_vulnerabilities': total_vulns,
+                'critical': severity_counts.get('critical', 0),
+                'high': severity_counts.get('high', 0),
+                'medium': severity_counts.get('medium', 0),
+                'low': severity_counts.get('low', 0),
+                'info': severity_counts.get('info', 0)
+            }
+            
+            return stats
+            
         except Exception as e:
             self.logger.error(f"Error getting vulnerability stats: {e}")
-            return {'total': 0}
+            return {
+                'total_vulnerabilities': 0,
+                'critical': 0,
+                'high': 0,
+                'medium': 0,
+                'low': 0,
+                'info': 0
+            }
 
     def delete_scan(self, scan_id: int) -> bool:
-        """Delete a scan and all associated data"""
+        """Delete a scan and its associated vulnerabilities"""
         try:
-            with self._lock:
-                with sqlite3.connect(self.db_path) as conn:
-                    cursor = conn.cursor()
-                    cursor.execute('DELETE FROM scans WHERE id = ?', (scan_id,))
-                    deleted = cursor.rowcount > 0
-                    conn.commit()
-                    if deleted:
-                        self.logger.info(f"Deleted scan ID: {scan_id}")
-                    return deleted
+            cursor = self.conn.cursor()
+            
+            # Delete vulnerabilities first
+            cursor.execute("DELETE FROM vulnerabilities WHERE scan_id = ?", (scan_id,))
+            
+            # Delete scan record
+            cursor.execute("DELETE FROM scans WHERE id = ?", (scan_id,))
+            
+            self.conn.commit()
+            return cursor.rowcount > 0
+            
         except Exception as e:
-            self.logger.error(f"Error deleting scan: {e}")
+            self.logger.error(f"Error deleting scan {scan_id}: {e}")
             return False
 
     def update_vulnerability_status(self, vuln_id: int, verified: bool = None, 
