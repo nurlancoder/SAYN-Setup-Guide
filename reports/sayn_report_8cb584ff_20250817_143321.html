@@ -1,0 +1,589 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>SAYN Security Report - https://httpbin.org/get</title>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+            <style>
+                .gradient-bg {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+                .vuln-card {
+                    transition: all 0.3s ease;
+                }
+                .vuln-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                }
+                .severity-critical { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+                .severity-high { background: linear-gradient(135deg, #ffa726, #ff9800); }
+                .severity-medium { background: linear-gradient(135deg, #ffd54f, #ffc107); }
+                .severity-low { background: linear-gradient(135deg, #81c784, #4caf50); }
+                .severity-info { background: linear-gradient(135deg, #64b5f6, #2196f3); }
+                
+                @media print {
+                    .no-print { display: none !important; }
+                    .print-break { page-break-before: always; }
+                }
+            </style>
+        </head>
+        <body class="bg-gray-50 min-h-screen">
+            <!-- Header -->
+            <div class="gradient-bg text-white py-8">
+                <div class="container mx-auto px-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-4xl font-bold mb-2">SAYN Security Scanner</h1>
+                            <p class="text-xl opacity-90">Comprehensive Security Assessment Report</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-6xl font-bold mb-2">40/100</div>
+                            <div class="text-lg opacity-90">Risk Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Info -->
+            <div class="container mx-auto px-6 py-8">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Target Information</h3>
+                            <p class="text-gray-600"><strong>URL:</strong> https://httpbin.org/get</p>
+                            <p class="text-gray-600"><strong>Scan Date:</strong> 2025-08-17T14:33:10.019815</p>
+                            <p class="text-gray-600"><strong>Scan Duration:</strong> 0:00:11.737748</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Scan Summary</h3>
+                            <p class="text-gray-600"><strong>Total Vulnerabilities:</strong> 11</p>
+                            <p class="text-gray-600"><strong>Modules Executed:</strong> ['web_security']</p>
+                            <p class="text-gray-600"><strong>Scan Type:</strong> Comprehensive</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Risk Assessment</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-red-600">Critical:</span>
+                                    <span class="font-semibold">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-orange-600">High:</span>
+                                    <span class="font-semibold">3</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-yellow-600">Medium:</span>
+                                    <span class="font-semibold">5</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-green-600">Low:</span>
+                                    <span class="font-semibold">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vulnerability Details -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Detailed Findings</h2>
+                    
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-orange-600 bg-orange-50 border-orange-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-high text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            HIGH
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing Content-Security-Policy Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #1
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The Content-Security-Policy security header is not present. Content Security Policy header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Implement a strict CSP to prevent XSS attacks</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-yellow-600 bg-yellow-50 border-yellow-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-medium text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            MEDIUM
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing X-Frame-Options Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #2
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The X-Frame-Options security header is not present. X-Frame-Options header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Set to DENY or SAMEORIGIN to prevent clickjacking</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-yellow-600 bg-yellow-50 border-yellow-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-medium text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            MEDIUM
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing X-Content-Type-Options Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #3
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The X-Content-Type-Options security header is not present. X-Content-Type-Options header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Set to nosniff to prevent MIME type sniffing</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-yellow-600 bg-yellow-50 border-yellow-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-medium text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            MEDIUM
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing X-XSS-Protection Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #4
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The X-XSS-Protection security header is not present. X-XSS-Protection header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Set to 1; mode=block to enable XSS protection</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-orange-600 bg-orange-50 border-orange-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-high text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            HIGH
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing Strict-Transport-Security Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #5
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The Strict-Transport-Security security header is not present. HTTP Strict Transport Security header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Set max-age to at least 31536000 (1 year)</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-green-600 bg-green-50 border-green-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-low text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            LOW
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing Referrer-Policy Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #6
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The Referrer-Policy security header is not present. Referrer Policy header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Set to strict-origin-when-cross-origin or stricter</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-yellow-600 bg-yellow-50 border-yellow-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-medium text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            MEDIUM
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing Permissions-Policy Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #7
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The Permissions-Policy security header is not present. Permissions Policy header (formerly Feature-Policy)</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Restrict access to sensitive browser features</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-green-600 bg-green-50 border-green-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-low text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            LOW
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing Cache-Control Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #8
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The Cache-Control security header is not present. Cache Control header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Set appropriate caching policies for sensitive content</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-yellow-600 bg-yellow-50 border-yellow-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-medium text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            MEDIUM
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing Set-Cookie Header</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #9
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">The Set-Cookie security header is not present. Cookie security attributes</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Use Secure, HttpOnly, and SameSite attributes</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-green-600 bg-green-50 border-green-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-low text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            LOW
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Server Information Disclosure</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #10
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">information_disclosure</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">Server header reveals: gunicorn/19.9.0</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Remove or obfuscate Server header</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+            <div class="vuln-card border rounded-lg p-6 mb-6 text-orange-600 bg-orange-50 border-orange-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="severity-high text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">
+                            HIGH
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800">Missing HSTS on HTTPS</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        #11
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Type</p>
+                        <p class="text-gray-800">missing_security_header</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Location</p>
+                        <p class="text-gray-800 break-all">HTTP Response Headers</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Description</p>
+                    <p class="text-gray-800">HTTPS site is missing Strict-Transport-Security header</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-600 mb-1">Recommendation</p>
+                    <p class="text-gray-800">Add HSTS header for HTTPS sites</p>
+                </div>
+                
+                
+                
+                
+            </div>
+            
+                </div>
+
+                <!-- Recommendations -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Security Recommendations</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Immediate Actions</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li class="flex items-start">
+                                    <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-2"></i>
+                                    Address all critical vulnerabilities first
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-shield-alt text-orange-500 mt-1 mr-2"></i>
+                                    Implement proper input validation
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-lock text-blue-500 mt-1 mr-2"></i>
+                                    Enable security headers
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Long-term Improvements</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li class="flex items-start">
+                                    <i class="fas fa-code text-purple-500 mt-1 mr-2"></i>
+                                    Regular security code reviews
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-sync text-green-500 mt-1 mr-2"></i>
+                                    Automated security testing
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-users text-indigo-500 mt-1 mr-2"></i>
+                                    Security awareness training
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center py-8 text-gray-500">
+                    <p>Generated by SAYN Security Scanner v2.1</p>
+                    <p class="mt-2">
+                        <strong>Author:</strong> Məmmədli Nurlan | 
+                        <strong>Email:</strong> nurlanmammadli2@gmail.com | 
+                        <strong>GitHub:</strong> <a href="https://github.com/nurlancoder" class="text-blue-600 hover:underline">nurlancoder</a>
+                    </p>
+                    <p class="mt-2 text-sm">
+                        ⚠️ This report is for authorized security testing only. 
+                        Use only on systems you own or have permission to test.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Print Button -->
+            <div class="no-print fixed bottom-6 right-6">
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg transition duration-300">
+                    <i class="fas fa-print mr-2"></i>Print Report
+                </button>
+            </div>
+        </body>
+        </html>
+        

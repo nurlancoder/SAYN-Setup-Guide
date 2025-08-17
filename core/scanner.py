@@ -194,16 +194,30 @@ class ScannerEngine:
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check on the scanner engine"""
+        session_created = False
         try:
+            # Create session if it doesn't exist
+            if not self.session or self.session.closed:
+                await self.__aenter__()
+                session_created = True
+            
             test_url = "https://httpbin.org/get"
             result = await self.make_request(test_url)
-            return {
+            
+            health_result = {
                 'status': 'healthy' if result['status_code'] == 200 else 'unhealthy',
                 'response_time': result['response_time'],
                 'error': result.get('error')
             }
+            
+            return health_result
+            
         except Exception as e:
             return {
                 'status': 'error',
                 'error': str(e)
             }
+        finally:
+            # Clean up session if we created it
+            if session_created and self.session and not self.session.closed:
+                await self.session.close()

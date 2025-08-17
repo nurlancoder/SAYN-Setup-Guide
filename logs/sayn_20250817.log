@@ -51,3 +51,24 @@
 2025-08-17 12:52:48,251 - SAYN.database - ERROR - save_scan_results:181 - Error saving scan results: Object of type ScannerEngine is not JSON serializable
 2025-08-17 12:52:48,253 - SAYN - ERROR - error:63 - Scan error: Object of type ScannerEngine is not JSON serializable
 2025-08-17 12:52:48,255 - SAYN - INFO - info:60 - Report generated: reports\sayn_report_8cb584ff_20250817_125248.html
+2025-08-17 14:30:55,128 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:31:08,537 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:31:26,146 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:32:32,746 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:33:10,018 - SAYN - INFO - info:60 - SAYN Security Scanner v2.1.0 initialized
+2025-08-17 14:33:10,019 - SAYN - INFO - info:60 - Starting scan of https://httpbin.org/get with modules: ['web']
+2025-08-17 14:33:10,029 - SAYN.database - INFO - create_scan_record:119 - Created scan record with ID: 7
+2025-08-17 14:33:10,030 - SAYN.xss_scanner - INFO - scan:63 - Starting XSS scan for https://httpbin.org/get
+2025-08-17 14:33:10,040 - SAYN.sqli_scanner - INFO - scan:101 - Starting SQL injection scan for https://httpbin.org/get
+2025-08-17 14:33:10,041 - SAYN.headers_scanner - INFO - scan:111 - Starting security headers scan for https://httpbin.org/get
+2025-08-17 14:33:10,042 - SAYN.csrf_scanner - INFO - scan:66 - Starting CSRF scan for https://httpbin.org/get
+2025-08-17 14:33:10,042 - SAYN.file_inclusion_scanner - INFO - scan:82 - Starting file inclusion scan for https://httpbin.org/get
+2025-08-17 14:33:11,227 - SAYN.headers_scanner - INFO - scan:151 - Security headers scan completed. Found 11 issues
+2025-08-17 14:33:12,157 - SAYN.sqli_scanner - INFO - scan:137 - SQL injection scan completed. Found 0 vulnerabilities
+2025-08-17 14:33:12,817 - SAYN.file_inclusion_scanner - INFO - scan:120 - File inclusion scan completed. Found 0 vulnerabilities
+2025-08-17 14:33:12,847 - SAYN.csrf_scanner - INFO - scan:102 - CSRF scan completed. Found 0 vulnerabilities
+2025-08-17 14:33:21,756 - SAYN.xss_scanner - INFO - scan:104 - XSS scan completed. Found 0 vulnerabilities
+2025-08-17 14:33:21,757 - SAYN.config - INFO - scan:82 - Web security scan completed for https://httpbin.org/get in 11.72s
+2025-08-17 14:33:21,761 - SAYN.database - ERROR - save_scan_results:181 - Error saving scan results: Object of type ScannerEngine is not JSON serializable
+2025-08-17 14:33:21,762 - SAYN - ERROR - error:63 - Scan error: Object of type ScannerEngine is not JSON serializable
+2025-08-17 14:33:21,769 - SAYN - INFO - info:60 - Report generated: reports\sayn_report_8cb584ff_20250817_143321.html

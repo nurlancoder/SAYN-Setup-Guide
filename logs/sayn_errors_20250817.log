@@ -4,3 +4,5 @@
 2025-08-17 12:51:47,875 - SAYN - ERROR - error:63 - Scan error: Object of type ScannerEngine is not JSON serializable
 2025-08-17 12:52:48,251 - SAYN.database - ERROR - save_scan_results:181 - Error saving scan results: Object of type ScannerEngine is not JSON serializable
 2025-08-17 12:52:48,253 - SAYN - ERROR - error:63 - Scan error: Object of type ScannerEngine is not JSON serializable
+2025-08-17 14:33:21,761 - SAYN.database - ERROR - save_scan_results:181 - Error saving scan results: Object of type ScannerEngine is not JSON serializable
+2025-08-17 14:33:21,762 - SAYN - ERROR - error:63 - Scan error: Object of type ScannerEngine is not JSON serializable

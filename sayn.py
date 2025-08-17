@@ -137,7 +137,8 @@ class SAYN:
         finally:
             # Clean up scanner engine resources
             try:
-                await self.scanner_engine.close()
+                if hasattr(self.scanner_engine, 'session') and self.scanner_engine.session and not self.scanner_engine.session.closed:
+                    await self.scanner_engine.session.close()
             except Exception as e:
                 self.logger.warning(f"Error closing scanner engine: {e}")
         
@@ -186,8 +187,10 @@ class SAYN:
         }
         
         try:
-            scanner_health = await self.scanner_engine.health_check()
-            health_status['components']['scanner_engine'] = scanner_health
+            # Use async context manager for proper session cleanup
+            async with self.scanner_engine as engine:
+                scanner_health = await engine.health_check()
+                health_status['components']['scanner_engine'] = scanner_health
             
             try:
                 self.db.get_scan_history(limit=1)
