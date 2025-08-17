@@ -1,0 +1,141 @@
+{
+    "database": {
+        "type": "sqlite",
+        "path": "sayn_data.db",
+        "host": "localhost",
+        "port": 5432,
+        "username": "",
+        "password": "",
+        "pool_size": 10,
+        "max_overflow": 20
+    },
+    "scanning": {
+        "max_threads": 20,
+        "timeout": 30,
+        "retry_attempts": 3,
+        "user_agent": "SAYN Security Scanner v2.1",
+        "max_redirects": 5,
+        "rate_limit": 10,
+        "delay_between_requests": 0.1,
+        "max_concurrent_requests": 50
+    },
+    "modules": {
+        "web_security": {
+            "enabled": true,
+            "aggressive_mode": false,
+            "xss_payloads": [
+                "<script>alert(\"SAYN-XSS\")</script>",
+                "\"><script>alert(\"SAYN-XSS\")</script>",
+                "';alert('SAYN-XSS');//",
+                "<img src=x onerror=alert(\"SAYN-XSS\")>",
+                "javascript:alert(\"SAYN-XSS\")"
+            ],
+            "sqli_payloads": [
+                "' OR '1'='1",
+                "' UNION SELECT NULL--",
+                "'; DROP TABLE users--",
+                "' OR 1=1--"
+            ]
+        },
+        "network_security": {
+            "enabled": true,
+            "port_range": "1-10000",
+            "common_ports": [
+                21,
+                22,
+                23,
+                25,
+                53,
+                80,
+                110,
+                143,
+                443,
+                993,
+                995,
+                3306,
+                3389,
+                5432,
+                8080
+            ],
+            "ssl_scan": true,
+            "tls_versions": [
+                "TLSv1.2",
+                "TLSv1.3"
+            ]
+        },
+        "api_security": {
+            "enabled": true,
+            "test_methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH"
+            ],
+            "auth_endpoints": [
+                "/login",
+                "/auth",
+                "/token",
+                "/oauth"
+            ],
+            "rate_limit_testing": true
+        }
+    },
+    "reporting": {
+        "output_dir": "reports",
+        "include_screenshots": true,
+        "include_raw_data": false,
+        "formats": [
+            "html",
+            "json",
+            "pdf",
+            "xml"
+        ],
+        "template_path": "templates/reports",
+        "auto_generate": true
+    },
+    "web_interface": {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "secret_key": "sayn-secret-key-change-in-production",
+        "debug": false,
+        "ssl_enabled": false,
+        "ssl_cert": "",
+        "ssl_key": "",
+        "session_timeout": 3600,
+        "max_file_size": 10485760
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "logs/sayn.log",
+        "max_size": 10485760,
+        "backup_count": 5,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "security": {
+        "allowed_hosts": [
+            "*"
+        ],
+        "csrf_protection": true,
+        "rate_limiting": true,
+        "max_requests_per_minute": 100,
+        "blocked_ips": [],
+        "whitelist_ips": []
+    },
+    "notifications": {
+        "email": {
+            "enabled": false,
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "username": "",
+            "password": "",
+            "from_address": "",
+            "to_addresses": []
+        },
+        "slack": {
+            "enabled": false,
+            "webhook_url": "",
+            "channel": "#security"
+        }
+    }
+}

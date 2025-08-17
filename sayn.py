@@ -85,6 +85,10 @@ class SAYN:
         }
         
         try:
+            # Ensure scanner engine is passed to all modules
+            options['scanner_engine'] = self.scanner_engine
+            self.logger.info(f"Scanner engine passed to options: {type(self.scanner_engine)}")
+            
             scan_tasks = []
             
             if 'web' in modules and hasattr(self, 'web_scanner'):
@@ -131,6 +135,12 @@ class SAYN:
             self.logger.error(f"Scan error: {e}")
             scan_results['error'] = str(e)
             scan_results['scan_completed'] = False
+        finally:
+            # Clean up scanner engine resources
+            try:
+                await self.scanner_engine.close()
+            except Exception as e:
+                self.logger.warning(f"Error closing scanner engine: {e}")
         
         return scan_results
 

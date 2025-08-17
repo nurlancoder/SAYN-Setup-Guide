@@ -75,6 +75,8 @@ class XSSScanner:
         try:
             scanner_engine = options.get('scanner_engine')
             if not scanner_engine:
+                self.logger.error(f"Options keys: {list(options.keys())}")
+                self.logger.error(f"Options content: {options}")
                 raise ValueError("Scanner engine not provided in options")
             
             forms = await self._extract_forms(scanner_engine, target)

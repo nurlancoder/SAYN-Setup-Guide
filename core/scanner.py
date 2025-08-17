@@ -51,6 +51,13 @@ class ScannerEngine:
         """Async context manager exit"""
         if self.session and not self.session.closed:
             await self.session.close()
+    
+    async def close(self):
+        """Close the scanner engine and cleanup resources"""
+        if self.session and not self.session.closed:
+            await self.session.close()
+        if hasattr(self, 'executor'):
+            self.executor.shutdown(wait=True)
 
     async def make_request(self, url: str, method: str = 'GET', 
                          retries: int = 3, **kwargs) -> Dict[str, Any]:

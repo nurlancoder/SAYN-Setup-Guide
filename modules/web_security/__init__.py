@@ -36,6 +36,10 @@ class WebSecurityScanner:
         start_time = asyncio.get_event_loop().time()
         
         try:
+            # Ensure scanner engine is available for all sub-scanners
+            if 'scanner_engine' not in options:
+                raise ValueError("Scanner engine not provided in options")
+            
             scan_tasks = []
             
             if self.config.is_module_enabled('web_security'):
